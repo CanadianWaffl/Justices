@@ -1,0 +1,11 @@
+{
+	"id": "justice",
+	"name": "Justices",
+	"display_name": "JS",
+	"author": ["CanadianWaffle"],
+	"description": "Adds our lovely Supreme Court Justices to Balala",
+	"prefix": "jst",
+	"main_file": "main.lua",
+	"badge_colour": "05133E",
+	"version": "0.0.1"
+}
