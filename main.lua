@@ -47,11 +47,39 @@ SMODS.Joker{
     loc_txt = {
         name = 'Samuel Alito',
         text = {
-            '\'Sup, It\'s Sam'
+            'All played {C:attention}Queens{}',
+            'become {C:mult}Glass{} cards',
+            'when scoring'
         }
     },
+    rarity = 1,
     atlas = 'Justices',
-    pos = {x = 0, y = 1}
+    pos = {x = 0, y = 1},
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers then
+            if context.before then
+                local queens = {}
+                for k, v in ipairs(context.scoring_hand) do
+                    if v:get_id() == 12 then
+                        queens[#queens+1] = v
+                        v:set_ability(G.P_CENTERS.m_glass, nil, true)
+                        G.E_MANAGER:add_event(Event({
+                            func = function()
+                                v:juice_up()
+                                return true
+                            end
+                        }))
+                    end
+                end
+                if #queens > 0 then
+                    return {
+                        message = 'Life!',
+                        colour = G.C.MULT
+                    }
+                end
+            end
+        end
+    end
 }
 
 SMODS.Joker{

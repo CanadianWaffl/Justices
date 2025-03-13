@@ -1,7 +1,7 @@
 {
 	"id": "justice",
 	"name": "Justices",
-	"display_name": "JS",
+	"display_name": "Justices",
 	"author": ["CanadianWaffle"],
 	"description": "Adds our lovely Supreme Court Justices to Balala",
 	"prefix": "jst",
