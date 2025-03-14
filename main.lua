@@ -126,11 +126,24 @@ SMODS.Joker{
     loc_txt = {
         name = 'Amy Coney Barrett',
         text = {
-            'Hi, I have a middle name.'
+            '{X:mult,C:white} X3 {} Mult if owned',
+            '{C:attention}Jokers{} is at least {C:attention}7'
         }
     },
+    config = {extra = {x_mult = 3}},
+    rarity = 3,
     atlas = 'Justices',
-    pos = {x = 1, y = 2}
+    pos = {x = 1, y = 2},
+    calculate = function(self, card, context)
+        if context.joker_main then
+            if #G.jokers.cards >= 7 then
+                return {
+                    Xmult_mod = card.ability.extra.x_mult,
+                    message = localize {type = 'variable', key = 'a_xmult', vars = {card.ability.extra.x_mult}}
+                }
+            end
+        end
+    end
 }
 
 SMODS.Joker{
