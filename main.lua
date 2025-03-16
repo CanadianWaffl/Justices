@@ -20,7 +20,7 @@ SMODS.Joker{
 SMODS.Joker{
     key = 'john',
     loc_txt = {
-        name = 'John Roberts',
+        name = 'Chief Justice', --get it it's because that's his title in *real* life
         text = {
             'Hello. I\'m John G. Roberts.'
         }
@@ -32,20 +32,34 @@ SMODS.Joker{
 SMODS.Joker{
     key = 'clarence',
     loc_txt = {
-        name = 'Clarence Thomas',
+        name = 'Silent Justice',
         text = {
-            'I\'m Clarence,',
-            'nice to meet you.'
+            '{C:money}-$#1#{} at end of round',
+            '{C:green}#3# in #4#{} chance to earn {C:money}$#2#{} instead'
         }
     },
+    rarity = 2,
+    loc_vars = function(self, info_queue, card)
+        return { vars = {self.config.money_loss, self.config.money_gain, (G.GAME.probabilities.normal or 1), self.config.odds}}
+    end,
+    config = {money_loss = 1, money_gain = 20, odds = 9},
     atlas = 'Justices',
-    pos = {x = 2, y = 0}
+    pos = {x = 2, y = 0},
+    calc_dollar_bonus = function(self, card)
+		local bonus
+        if pseudorandom('clarence') < G.GAME.probabilities.normal / self.config.odds then
+            bonus = self.config.money_gain
+        else
+            bonus = -self.config.money_loss
+        end
+        if bonus ~= 0 then return bonus end
+	end
 }
 
 SMODS.Joker{
     key = 'sam',
     loc_txt = {
-        name = 'Samuel Alito',
+        name = 'Pro-Life Justice', --replace with something less obvious
         text = {
             'All played {C:attention}Queens{}',
             'become {C:mult}Glass{} cards',
@@ -98,7 +112,7 @@ SMODS.Joker{
 SMODS.Joker{
     key = 'elena',
     loc_txt = {
-        name = 'Elena Kagan',
+        name = 'Frozen Justice',
         text = {
             'Hi, I\'m Mrs. Kagan.'
         }
@@ -110,7 +124,7 @@ SMODS.Joker{
 SMODS.Joker{
     key = 'brett',
     loc_txt = {
-        name = 'Brett Kavanaugh',
+        name = 'Papal Justice',
         text = {
             'Adds {C:chips}+#2#{} Chips when',
             'a card is {C:mult}destroyed',
@@ -145,7 +159,7 @@ SMODS.Joker{
 SMODS.Joker{
     key = 'amy',
     loc_txt = {
-        name = 'Amy Coney Barrett',
+        name = 'Nuclear Justice', --nuclear family, specifically
         text = {
             '{X:mult,C:white} X3 {} Mult if owned',
             '{C:attention}Jokers{} is at least {C:attention}7'
