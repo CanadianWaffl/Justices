@@ -112,13 +112,34 @@ SMODS.Joker{
     loc_txt = {
         name = 'Brett Kavanaugh',
         text = {
-            'Hola, soy Brett.',
-            'I\'ve been practicing',
-            'my espanol'
+            'Adds {C:chips}+#2#{} Chips when',
+            'a card is {C:mult}destroyed',
+            '{C:inactive}(Currently {C:chips}+#1#{} {C:inactive}Chips)'
         }
     },
+    loc_vars = function(self, info_queue, card)
+		return { vars = { self.config.chips, self.config.chip_gain } }
+	end,
+    config = {chips = 4, chip_gain = 12},
+    rarity = 1,
     atlas = 'Justices',
-    pos = {x = 0, y = 2}
+    pos = {x = 0, y = 2},
+    calculate = function(self, card, context)
+        if context.remove_playing_cards then
+            for k, v in ipairs(context.removed) do
+                self.config.chips = self.config.chips + self.config.chip_gain
+            end
+            return {
+                message = 'Upgrade!',
+                colour = G.C.CHIPS
+            }
+        end
+        if context.joker_main then 
+            return {
+                chips = self.config.chips
+            }
+        end
+    end
 }
 
 SMODS.Joker{
