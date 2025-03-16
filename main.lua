@@ -1,6 +1,23 @@
+--Jokers
 SMODS.Atlas{
     key = 'Justices',
     path = 'jokeratlas.png',
+    px = 71,
+    py = 95
+}
+
+--Consumables
+SMODS.Atlas{
+    key = 'Consumes',
+    path = 'consumatlas.png',
+    px = 71,
+    py = 95
+}
+
+--Seals
+SMODS.Atlas{
+    key = 'Seals',
+    path = 'sealatlas.png',
     px = 71,
     py = 95
 }
@@ -22,11 +39,33 @@ SMODS.Joker{
     loc_txt = {
         name = 'Chief Justice', --get it it's because that's his title in *real* life
         text = {
-            'Hello. I\'m John G. Roberts.'
+            'When round begins',
+            'add a random {C:attention}playing',
+            '{C:attention}card{} with a Black',
+            '{C:attention}seal{} to hand'
         }
     },
+    rarity = 3,
     atlas = 'Justices',
-    pos = {x = 1, y = 0}
+    pos = {x = 1, y = 0},
+    calculate = function(self, card, context)
+        if context.first_hand_drawn then
+            G.E_MANAGER:add_event(Event({
+                func = function() 
+                    local _card = create_playing_card({
+                        front = pseudorandom_element(G.P_CARDS, pseudoseed('john')), 
+                        center = G.P_CENTERS.c_base}, G.hand, nil, nil, {G.C.SECONDARY_SET.Enhanced})
+                    _card:set_seal('jst_Black', true)
+                    G.GAME.blind:debuff_card(_card)
+                    G.hand:sort()
+                    return {
+                        message = 'Order!',
+                        colour = G.C.black
+                    }
+                end}))
+            playing_card_joker_effects({true})
+        end
+    end
 }
 
 SMODS.Joker{
@@ -35,7 +74,8 @@ SMODS.Joker{
         name = 'Silent Justice',
         text = {
             '{C:money}-$#1#{} at end of round',
-            '{C:green}#3# in #4#{} chance to earn {C:money}$#2#{} instead'
+            '{C:green}#3# in #4#{} chance to', 
+            'earn {C:money}$#2#{} instead'
         }
     },
     rarity = 2,
@@ -99,7 +139,7 @@ SMODS.Joker{
 SMODS.Joker{
     key = 'sonia',
     loc_txt = {
-        name = 'Sonia Sotomayor',
+        name = 'Social Justice',
         text = {
             'Sotomayor, pleased to make',
             'your acquaintance.'
@@ -192,3 +232,44 @@ SMODS.Joker{
     atlas = 'Justices',
     pos = {x = 2, y = 2}
 }
+
+--Black seal
+SMODS.Seal {
+    name = 'black-seal',
+    key = 'Black',
+    badge_colour = HEX('000000'),
+    loc_txt = {
+        label = 'Black Seal',
+        name = 'Black Seal',
+        text = {
+            'Creates a random',
+            '{C:spectral}Spectral card',
+            'when destroyed'
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+		return {}
+	end,
+    config = {},
+    atlas = 'Seals',
+    pos = {x = 0, y = 0},
+    calculate = function(self, card, context)
+        if context.remove_playing_cards then
+            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'before',
+                    delay = 0.0,
+                    func = (function()
+                            local card = create_card('Spectral',G.consumeables, nil, nil, nil, nil, nil, 'black-seal')
+                            card:add_to_deck()
+                            G.consumeables:emplace(card)
+                            G.GAME.consumeable_buffer = 0
+                        return true
+                    end)}))
+            end
+        end
+    end
+}
+
+--Law Tarot
