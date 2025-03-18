@@ -303,3 +303,33 @@ SMODS.Seal {
 }
 
 --Law Tarot
+SMODS.Consumable {
+	key = 'law',
+	set = 'Tarot',
+	loc_txt = {
+		'{C:green}#1#{} in {C:green}#2#{} chance to',
+		'apply {C:attention}negative to', --Better colour for negative?
+		'{C:attention}#3#{} selected Joker',
+		'Does not apply to {C:attention}Justices' --Better colour here too?
+	},
+	loc_vars = function(self, info_queue, card)
+		return {vars = {(G.GAME.probabilities.normal or 1), self.config.odds, self.config.max_select}}
+	end
+	config = {odds = 6, max_select = 1},
+	atlas = 'Consumes',
+	pos = {x = 0, y = 0},
+	use = function(self, card, area, copier)
+		for i = 1, math.min(#G.jokers.highlighted, self.config.max_select) do
+            		G.E_MANAGER:add_event(Event({func = function()
+                	play_sound('tarot1')
+                	card:juice_up(0.3, 0.5)
+               		return true end }))
+            
+            		G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.1,func = function()
+                	--G.hand.highlighted[i]:set_seal(card.ability.extra, nil, true)
+                	return true end }))
+            		delay(0.5)
+        	end
+        	G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.2,func = function() G.hand:unhighlight_all(); return true end }))
+	end
+}
