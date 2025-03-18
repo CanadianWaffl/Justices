@@ -142,6 +142,7 @@ SMODS.Joker{
     end
 }
 
+--[[ temp removing sonia because she doesn't work and i need to test other stuff
 SMODS.Joker{
     key = 'sonia',
     loc_txt = {
@@ -175,6 +176,7 @@ SMODS.Joker{
         return true
     end
 }
+]]
 
 SMODS.Joker{
     key = 'elena',
@@ -307,29 +309,68 @@ SMODS.Consumable {
 	key = 'law',
 	set = 'Tarot',
 	loc_txt = {
-		'{C:green}#1#{} in {C:green}#2#{} chance to',
-		'apply {C:attention}negative to', --Better colour for negative?
-		'{C:attention}#3#{} selected Joker',
-		'Does not apply to {C:attention}Justices' --Better colour here too?
+        name = "Law",
+        text = {
+            '{C:green}#1#{} in {C:green}#2#{} chance to',
+            'upgrade the {C:dark_edition}edition{} of',
+            'a random joker',
+            'Does not apply to {C:attention}Justices', --Better colour here too?
+            '{C:inactive}(Ex: holo -> polychrome)'
+        }
 	},
 	loc_vars = function(self, info_queue, card)
-		return {vars = {(G.GAME.probabilities.normal or 1), self.config.odds, self.config.max_select}}
-	end
-	config = {odds = 6, max_select = 1},
+		return {vars = {(G.GAME.probabilities.normal or 1), self.config.odds}}
+	end,
+	config = {odds = 1}, --CHANGE ODDS BACK 
 	atlas = 'Consumes',
 	pos = {x = 0, y = 0},
-	use = function(self, card, area, copier)
-		for i = 1, math.min(#G.jokers.highlighted, self.config.max_select) do
-            		G.E_MANAGER:add_event(Event({func = function()
-                	play_sound('tarot1')
-                	card:juice_up(0.3, 0.5)
-               		return true end }))
-            
-            		G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.1,func = function()
-                	--G.hand.highlighted[i]:set_seal(card.ability.extra, nil, true)
-                	return true end }))
-            		delay(0.5)
-        	end
-        	G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.2,func = function() G.hand:unhighlight_all(); return true end }))
+    can_use = function(self, card)
+        if G then
+            local eligible_jokers = {}
+            for k, v in ipairs(G.jokers.cards) do
+                if v.atlas ~= 'Justices' then
+                    if v.edition then
+                        if not v.edition.negative then 
+                        eligible_jokers[#eligible_jokers+1] = v end
+                    else
+                        eligible_jokers[#eligible_jokers+1] = v end
+                end
+            end
+            if #eligible_jokers > 0 then
+                return true
+            end
+        end
+        return false
+    end,
+	use = function(self, card, area, copier) --TODO: erroneously works on Justice cards
+        local eligible_jokers = {}
+        if pseudorandom('law') < (G.GAME.probabilities.normal / self.config.odds) then
+            for k, v in ipairs(G.jokers.cards) do
+                if v.atlas ~= 'Justices' then
+                    if v.edition then
+                        if not v.edition.negative then 
+                        eligible_jokers[#eligible_jokers+1] = v end
+                    else
+                        eligible_jokers[#eligible_jokers+1] = v end
+                end
+            end
+            sendInfoMessage('eligible jokers: ' .. #eligible_jokers, "MyInfoLogger")
+            if #eligible_jokers > 0 then
+                local chosen, num = pseudorandom_element(eligible_jokers, pseudorandom('law2'))
+                if not chosen.edition then
+                    sendInfoMessage('chosen joker has no edition', "MyInfoLogger")
+                    chosen:set_edition({foil = true}, true)
+                elseif chosen.edition.foil then
+                    sendInfoMessage('chosen joker is foil', "MyInfoLogger")
+                    chosen:set_edition({holo = true}, true)
+                elseif chosen.edition.holo then
+                    sendInfoMessage('chosen joker is holo', "MyInfoLogger")
+                    chosen:set_edition({polychrome = true}, true)
+                elseif chosen.edition.polychrome then
+                    sendInfoMessage('chosen joker is poly', "MyInfoLogger")
+                    chosen:set_edition({negative = true}, true)
+                end
+            end
+        end
 	end
 }
