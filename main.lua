@@ -22,6 +22,8 @@ SMODS.Atlas{
     py = 95
 }
 
+------------JOKERS---------------
+---------------------------------
 SMODS.Joker{
     key = 'neil',
     loc_txt = {
@@ -30,8 +32,12 @@ SMODS.Joker{
             'Hi, I\'m Neil'
         }
     },
+    rarity = 2,
+    config = {},
     atlas = 'Justices',
-    pos = {x = 0, y = 0}
+    pos = {x = 0, y = 0},
+    calculate = function(self, card, context)
+    end
 }
 
 SMODS.Joker{
@@ -141,12 +147,33 @@ SMODS.Joker{
     loc_txt = {
         name = 'Social Justice',
         text = {
-            'Sotomayor, pleased to make',
-            'your acquaintance.'
+            'When {C:attention}blind{} is selected,',
+            'upgrade the level',
+            'of the {C:attention}least{} used hand'
         }
     },
+    rarity = 1,
     atlas = 'Justices',
-    pos = {x = 1, y = 1}
+    pos = {x = 1, y = 1},
+    calculate = function(self, card, context)
+        if context.first_hand_drawn then
+            local _hand, _tally = nil, 10000
+            for k, v in ipairs(G.handlist) do
+                if G.GAME.hands[v].visible and G.GAME.hands[v].played < _tally then
+                    _hand = v
+                    _tally = G.GAME.hands[v].played
+                end
+            end
+            if _hand then
+                local text, disp_text = _hand, _hand
+                --card_eval_status_text(context.blueprint_card or self, 'extra', nil, nil, nil, {message = localize('k_upgrade_ex')})
+                --update_hand_text({sound = 'button', volume = 0.7, pitch = 0.8, delay = 0.3}, {handname=localize(text, 'poker_hands'),chips = G.GAME.hands[text].chips, mult = G.GAME.hands[text].mult, level=G.GAME.hands[text].level})
+                level_up_hand(self, text, nil, 1)
+                --update_hand_text({sound = 'button', volume = 0.7, pitch = 1.1, delay = 0}, {mult = 0, chips = 0, handname = '', level = ''})
+            end
+        end
+        return true
+    end
 }
 
 SMODS.Joker{
@@ -232,6 +259,9 @@ SMODS.Joker{
     atlas = 'Justices',
     pos = {x = 2, y = 2}
 }
+
+----------JOKERS END-------------
+---------------------------------
 
 --Black seal
 SMODS.Seal {
