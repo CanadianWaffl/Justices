@@ -314,14 +314,14 @@ SMODS.Consumable {
             '{C:green}#1#{} in {C:green}#2#{} chance to',
             'upgrade the {C:dark_edition}edition{} of',
             'a random joker',
-            'Does not apply to {C:attention}Justices', --Better colour here too?
+            'Does not apply to {C:attention}Justices',
             '{C:inactive}(Ex: holo -> polychrome)'
         }
 	},
 	loc_vars = function(self, info_queue, card)
 		return {vars = {(G.GAME.probabilities.normal or 1), self.config.odds}}
 	end,
-	config = {odds = 1}, --CHANGE ODDS BACK 
+	config = {odds = 2}, --CHANGE ODDS BACK 
 	atlas = 'Consumes',
 	pos = {x = 0, y = 0},
     can_use = function(self, card)
@@ -356,21 +356,44 @@ SMODS.Consumable {
             end
             sendInfoMessage('eligible jokers: ' .. #eligible_jokers, "MyInfoLogger")
             if #eligible_jokers > 0 then
-                local chosen, num = pseudorandom_element(eligible_jokers, pseudorandom('law2'))
-                if not chosen.edition then
-                    sendInfoMessage('chosen joker has no edition', "MyInfoLogger")
-                    chosen:set_edition({foil = true}, true)
-                elseif chosen.edition.foil then
-                    sendInfoMessage('chosen joker is foil', "MyInfoLogger")
-                    chosen:set_edition({holo = true}, true)
-                elseif chosen.edition.holo then
-                    sendInfoMessage('chosen joker is holo', "MyInfoLogger")
-                    chosen:set_edition({polychrome = true}, true)
-                elseif chosen.edition.polychrome then
-                    sendInfoMessage('chosen joker is poly', "MyInfoLogger")
-                    chosen:set_edition({negative = true}, true)
-                end
+                G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
+                    local chosen, num = pseudorandom_element(eligible_jokers, pseudorandom('law2'))
+                    if not chosen.edition then
+                        sendInfoMessage('chosen joker has no edition', "MyInfoLogger")
+                        chosen:set_edition({foil = true}, true)
+                    elseif chosen.edition.foil then
+                        sendInfoMessage('chosen joker is foil', "MyInfoLogger")
+                        chosen:set_edition({holo = true}, true)
+                    elseif chosen.edition.holo then
+                        sendInfoMessage('chosen joker is holo', "MyInfoLogger")
+                        chosen:set_edition({polychrome = true}, true)
+                    elseif chosen.edition.polychrome then
+                        sendInfoMessage('chosen joker is poly', "MyInfoLogger")
+                        chosen:set_edition({negative = true}, true)
+                    end
+                    return {
+                        message = localize('k_upgrade_ex'),
+                        card = chosen
+                    }
+                end}))
             end
+            return true
         end
+        G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function() --Not working
+            attention_text({
+                text = localize('k_nope_ex'),
+                scale = 1.3, 
+                hold = 1.4,
+                major = copier or self,
+                backdrop_colour = G.C.SECONDARY_SET.Tarot,
+                align = (G.STATE == G.STATES.TAROT_PACK or G.STATE == G.STATES.SPECTRAL_PACK) and 'tm' or 'cm',
+                offset = {x = 0, y = (G.STATE == G.STATES.TAROT_PACK or G.STATE == G.STATES.SPECTRAL_PACK) and -0.2 or 0},
+                silent = true
+                })
+                G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.06*G.SETTINGS.GAMESPEED, blockable = false, blocking = false, func = function()
+                    play_sound('tarot2', 0.76, 0.4);return true end}))
+                play_sound('tarot2', 1, 0.4)
+                --self:juice_up(0.3, 0.5)
+        return true end }))
 	end
 }
