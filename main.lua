@@ -64,12 +64,12 @@ SMODS.Joker{
                     _card:set_seal('jst_Black', true)
                     G.GAME.blind:debuff_card(_card)
                     G.hand:sort()
-                    return {
-                        message = 'Order!',
-                        colour = G.C.black
-                    }
-                end}))
+                    return true end}))
             playing_card_joker_effects({true})
+            return {
+                message = 'Order!',
+                colour = G.C.black
+            }
         end
     end
 }
@@ -105,7 +105,7 @@ SMODS.Joker{
 SMODS.Joker{
     key = 'sam',
     loc_txt = {
-        name = 'Pro-Life Justice', --replace with something less obvious
+        name = 'Justice Justice',
         text = {
             'All played {C:attention}Queens{}',
             'become {C:mult}Glass{} cards',
@@ -142,15 +142,15 @@ SMODS.Joker{
     end
 }
 
---[[ temp removing sonia because she doesn't work and i need to test other stuff
 SMODS.Joker{
     key = 'sonia',
     loc_txt = {
         name = 'Social Justice',
         text = {
             'When {C:attention}blind{} is selected,',
-            'upgrade the level',
-            'of the {C:attention}least{} used hand'
+            'upgrade the level of',
+            'the lowest levelled',
+            '{C:}hand type'
         }
     },
     rarity = 1,
@@ -158,25 +158,29 @@ SMODS.Joker{
     pos = {x = 1, y = 1},
     calculate = function(self, card, context)
         if context.first_hand_drawn then
-            local _hand, _tally = nil, 10000
+            local _least, _hand, _tally = {}, nil, 10000
             for k, v in ipairs(G.handlist) do
-                if G.GAME.hands[v].visible and G.GAME.hands[v].played < _tally then
-                    _hand = v
-                    _tally = G.GAME.hands[v].played
+                if G.GAME.hands[v].visible then
+                    if G.GAME.hands[v].level < _tally then
+                        _tally = G.GAME.hands[v].level
+                        _least = {}
+                        _least[#_least + 1] = v
+                    elseif G.GAME.hands[v].level == _tally then
+                        _least[#_least + 1] = v
+                    end
                 end
             end
+            _hand = pseudorandom_element(_least, pseudorandom('sonia'))
             if _hand then
-                local text, disp_text = _hand, _hand
-                --card_eval_status_text(context.blueprint_card or self, 'extra', nil, nil, nil, {message = localize('k_upgrade_ex')})
-                --update_hand_text({sound = 'button', volume = 0.7, pitch = 0.8, delay = 0.3}, {handname=localize(text, 'poker_hands'),chips = G.GAME.hands[text].chips, mult = G.GAME.hands[text].mult, level=G.GAME.hands[text].level})
-                level_up_hand(self, text, nil, 1)
-                --update_hand_text({sound = 'button', volume = 0.7, pitch = 1.1, delay = 0}, {mult = 0, chips = 0, handname = '', level = ''})
+                local text = _hand
+                card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize('k_upgrade_ex')})
+                update_hand_text({sound = 'button', volume = 0.7, pitch = 0.8, delay = 0.3}, {handname=localize(text, 'poker_hands'),chips = G.GAME.hands[text].chips, mult = G.GAME.hands[text].mult, level=G.GAME.hands[text].level})
+                level_up_hand(card, text, nil, 1)
+                update_hand_text({sound = 'button', volume = 0.7, pitch = 1.1, delay = 0}, {mult = 0, chips = 0, handname = '', level = ''})
             end
         end
-        return true
     end
 }
-]]
 
 SMODS.Joker{
     key = 'elena',
@@ -253,15 +257,32 @@ SMODS.Joker{
 SMODS.Joker{
     key = 'ketanji',
     loc_txt = {
-        name = 'Ketanji Jackson',
+        name = 'Criminal Justice',
         text = {
-            'Hi, I\'m Ketanji.'
+            'Every discarded',
+            '{C:attention}card{} permanently',
+            'gains {C:mult}+#1#{} mult'
         }
     },
+    loc_vars = function(self, info_queue, card)
+        return {vars = {self.config.perma_mult}}
+    end,
+    config = {perma_mult = 2},
+    rarity = 2,
     atlas = 'Justices',
-    pos = {x = 2, y = 2}
+    pos = {x = 2, y = 2},
+    calculate = function(self, card, context)
+        if context.pre_discard then
+            for k, v in ipairs(G.hand.highlighted) do
+                v.ability.perma_mult = v.ability.perma_mult or 0
+                v.ability.perma_mult = v.ability.perma_mult + self.config.perma_mult
+                card_eval_status_text(v, 'extra', nil, nil, nil, {message = localize('k_upgrade_ex'), colour = G.C.MULT})
+                --card:juice_up(0.3, 0.5) --only happens once for some reason??
+            end
+            return true
+        end
+    end
 }
-
 ----------JOKERS END-------------
 ---------------------------------
 
@@ -354,21 +375,16 @@ SMODS.Consumable {
                         eligible_jokers[#eligible_jokers+1] = v end
                 end
             end
-            sendInfoMessage('eligible jokers: ' .. #eligible_jokers, "MyInfoLogger")
             if #eligible_jokers > 0 then
                 G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
                     local chosen, num = pseudorandom_element(eligible_jokers, pseudorandom('law2'))
                     if not chosen.edition then
-                        sendInfoMessage('chosen joker has no edition', "MyInfoLogger")
                         chosen:set_edition({foil = true}, true)
                     elseif chosen.edition.foil then
-                        sendInfoMessage('chosen joker is foil', "MyInfoLogger")
                         chosen:set_edition({holo = true}, true)
                     elseif chosen.edition.holo then
-                        sendInfoMessage('chosen joker is holo', "MyInfoLogger")
                         chosen:set_edition({polychrome = true}, true)
                     elseif chosen.edition.polychrome then
-                        sendInfoMessage('chosen joker is poly', "MyInfoLogger")
                         chosen:set_edition({negative = true}, true)
                     end
                     return {
