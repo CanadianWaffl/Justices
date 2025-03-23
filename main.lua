@@ -304,9 +304,7 @@ SMODS.Joker{
     pos = {x = 1, y = 3},
     calculate = function(self, card, context)
         if context.selling_card then
-            sendInfoMessage('selling a '..context.card.ability.name, 'MyInfoLogger')
             if context.card.ability.name == 'c_jst_law' then
-                sendInfoMessage('selling a law tarot', 'MyInfoLogger')
                 self.config.xmult = self.config.xmult + self.config.xmult_gain
                 return {
                     message = localize('k_upgrade_ex'),
@@ -387,7 +385,6 @@ SMODS.Consumable {
     remove_from_deck = function(self, card, from_debuff)
         if not from_debuff then
             if not G.GAME.pool_flags.law_sold then
-                sendInfoMessage('Marshall can now be found', 'MyInfoLogger')
                 G.GAME.pool_flags.law_sold = true
             end
         end
@@ -396,7 +393,7 @@ SMODS.Consumable {
         if G then
             local eligible_jokers = {}
             for k, v in ipairs(G.jokers.cards) do
-                if v.atlas ~= 'Justices' then
+                if not string.find(v.ability.name, 'jst') then
                     if v.edition then
                         if not v.edition.negative then 
                         eligible_jokers[#eligible_jokers+1] = v end
@@ -410,11 +407,11 @@ SMODS.Consumable {
         end
         return false
     end,
-	use = function(self, card, area, copier) --TODO: erroneously works on Justice cards
+	use = function(self, card, area, copier)
         local eligible_jokers = {}
         if pseudorandom('law') < (G.GAME.probabilities.normal / self.config.odds) then
             for k, v in ipairs(G.jokers.cards) do
-                if v.atlas ~= 'Justices' then
+                if not string.find(v.ability.name, 'jst') then
                     if v.edition then
                         if not v.edition.negative then 
                         eligible_jokers[#eligible_jokers+1] = v end
