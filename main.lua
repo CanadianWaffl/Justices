@@ -234,7 +234,7 @@ SMODS.Joker{
     loc_txt = {
         name = 'Nuclear Justice', --nuclear family, specifically
         text = {
-            '{X:mult,C:white} X3 {} Mult if owned',
+            '{X:mult,C:white}X3{} Mult if owned',
             '{C:attention}Jokers{} is at least {C:attention}7'
         }
     },
@@ -280,6 +280,45 @@ SMODS.Joker{
                 --card:juice_up(0.3, 0.5) --only happens once for some reason??
             end
             return true
+        end
+    end
+}
+
+SMODS.Joker{
+    key = 'marshall',
+    loc_txt = {
+        name = 'Ghostly Justice',
+        text = {
+            'Gains {X:mult,C:white}X1{} mult for',
+            'each {C:tarot}Law tarot{} sold',
+            '{C:inactive}(Currently {X:mult,C:white}X#1#{} {C:inactive}mult)'
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        return {vars = {self.config.xmult}}
+    end,
+    yes_pool_flag = 'law_sold',
+    config = {xmult = 1, xmult_gain = 1},
+    rarity = 4,
+    atlas = 'Justices',
+    pos = {x = 1, y = 3},
+    calculate = function(self, card, context)
+        if context.selling_card then
+            sendInfoMessage('selling a '..context.card.ability.name, 'MyInfoLogger')
+            if context.card.ability.name == 'c_jst_law' then
+                sendInfoMessage('selling a law tarot', 'MyInfoLogger')
+                self.config.xmult = self.config.xmult + self.config.xmult_gain
+                return {
+                    message = localize('k_upgrade_ex'),
+                    colour = G.C.MULT
+                }
+            end
+        end
+        if context.joker_main then
+            return {
+                Xmult_mod = self.config.xmult,
+                message = localize {type = 'variable', key = 'a_xmult', vars = {self.config.xmult}}
+            }
         end
     end
 }
@@ -342,9 +381,17 @@ SMODS.Consumable {
 	loc_vars = function(self, info_queue, card)
 		return {vars = {(G.GAME.probabilities.normal or 1), self.config.odds}}
 	end,
-	config = {odds = 2}, --CHANGE ODDS BACK 
+	config = {odds = 2}, --CHANGE ODDS BACK
 	atlas = 'Consumes',
 	pos = {x = 0, y = 0},
+    remove_from_deck = function(self, card, from_debuff)
+        if not from_debuff then
+            if not G.GAME.pool_flags.law_sold then
+                sendInfoMessage('Marshall can now be found', 'MyInfoLogger')
+                G.GAME.pool_flags.law_sold = true
+            end
+        end
+    end,
     can_use = function(self, card)
         if G then
             local eligible_jokers = {}
