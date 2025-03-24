@@ -42,13 +42,13 @@ SMODS.Joker{
     pos = {x = 0, y = 0},
     calculate = function(self, card, context)
         if context.joker_main then
-            sendInfoMessage("edition: "..inspect(card.edition), "MyInfoLogger")
             return {
                 mult_mod = self.config.mult,
                 message = localize { type = 'variable', key = 'a_mult', vars = { self.config.mult}}
             }
-        elseif context.final_scoring_step then
-            if self.config.timer >= 1 then
+        end
+        if context.final_scoring_step then
+            if self.config.timer > 1 then
                 self.config.timer = self.config.timer - 1
                 return {
                     message = 'Tick Tock...',
@@ -78,7 +78,11 @@ SMODS.Joker{
 				}))
                 G.E_MANAGER:add_event(Event({
                     func = function()
-                        add_joker('j_jst_roboneil', card.edition.key.gsub(card.edition.key,"e_",""))
+                        if card.edition then
+                            add_joker('j_jst_roboneil', card.edition.key.gsub(card.edition.key,"e_",""))
+                        else
+                            add_joker('j_jst_roboneil')
+                        end
                         return true
                     end
                 }))
@@ -92,14 +96,53 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'roboneil',
+    no_collection = true,
     loc_txt = {
         name = 'Cybernetic Justice',
         text = {
-            'Bleep Bloop'
+            'Adds {C:mult}+#1#{} Mult',
+            'for each Joker to',
+            'the left each hand',
+            '{C:inactive}(Currently {C:mult}+#2#{} {C:inactive}Mult)'
         }
     },
+    loc_vars = function(self, info_queue, card)
+        return {vars = {self.config.mult_gain, self.config.mult}}
+    end,
+    config = {mult = 5, mult_gain = 2},
+    yes_pool_flag = "never",
+    rarity = 2,
     atlas = 'Justices',
-    pos = {x = 0, y = 3}
+    pos = {x = 0, y = 3},
+    calculate = function(self, card, context)
+        if context.before and context.cardarea == G.jokers then 
+            local count = 0
+            for k, v in ipairs(G.jokers.cards) do
+                if v == card then break end
+                count = count + 1
+                self.config.mult = self.config.mult + self.config.mult_gain
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'immediate',
+                    func = function()
+                        v:juice_up()
+                        return true
+                    end
+                }))
+            end
+            if count > 0 then
+                return {
+                    message = localize('k_upgrade_ex'),
+                    colour = G.C.MULT
+                }
+            end
+        end
+        if context.joker_main then
+            return {
+                mult_mod = self.config.mult,
+                message = localize { type = 'variable', key = 'a_mult', vars = { self.config.mult}}
+            }
+        end
+    end
 }
 
 SMODS.Joker{
