@@ -249,11 +249,32 @@ SMODS.Joker{
     loc_txt = {
         name = 'Frozen Justice',
         text = {
-            'Hi, I\'m Mrs. Kagan.'
+            '{C:green}#1# in #2#{} chance to',
+            'create a {C:dark_edition}negative{}',
+            '{C:attention}Ice Cream{} at',
+            'start of round'
         }
     },
+    loc_vars = function(self, info_queue, card)
+        return {vars = {(G.GAME.probabilities.normal or 1), self.config.odds}}
+    end,
+    config = {odds = 4},
+    rarity = 2,
     atlas = 'Justices',
-    pos = {x = 2, y = 1}
+    pos = {x = 2, y = 1},
+    calculate = function(self, card, context)
+        if context.first_hand_drawn then
+            if pseudorandom('elena') < G.GAME.probabilities.normal / self.config.odds then
+                add_joker('j_ice_cream', 'negative')
+                return {
+                    message = 'Yum!'
+                }
+            end
+            return {
+                message = 'Nope!'
+            }
+        end
+    end
 }
 
 SMODS.Joker{
