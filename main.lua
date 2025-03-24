@@ -27,17 +27,79 @@ SMODS.Atlas{
 SMODS.Joker{
     key = 'neil',
     loc_txt = {
-        name = 'Neil Gorsuch',
+        name = 'Average Justice',
         text = {
-            'Hi, I\'m Neil'
+            '{C:mult}+#1#{} Mult',
+            'Self-destructs in {C:attention}#2# hands'
         }
     },
-    rarity = 2,
-    config = {},
+    loc_vars = function(self, info_queue, card)
+        return {vars = {self.config.mult, self.config.timer}}
+    end,
+    rarity = 1,
+    config = {mult = 5, timer = 2}, --CHANGE BACK TO 10 TIMER
     atlas = 'Justices',
     pos = {x = 0, y = 0},
     calculate = function(self, card, context)
+        if context.joker_main then
+            sendInfoMessage("edition: "..inspect(card.edition), "MyInfoLogger")
+            return {
+                mult_mod = self.config.mult,
+                message = localize { type = 'variable', key = 'a_mult', vars = { self.config.mult}}
+            }
+        elseif context.final_scoring_step then
+            if self.config.timer >= 1 then
+                self.config.timer = self.config.timer - 1
+                return {
+                    message = 'Tick Tock...',
+                }
+            else
+                G.E_MANAGER:add_event(Event({
+					func = function()
+						play_sound('tarot1')
+						card.T.r = -0.2
+						card:juice_up(0.3, 0.4)
+						card.states.drag.is = true
+						card.children.center.pinch.x = true
+						-- This part destroys the card.
+						G.E_MANAGER:add_event(Event({
+							trigger = 'after',
+							delay = 0.3,
+							blockable = false,
+							func = function()
+								G.jokers:remove_card(card)
+								card:remove()
+								card = nil
+								return true;
+							end
+						}))
+						return true
+					end
+				}))
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        add_joker('j_jst_roboneil', card.edition.key.gsub(card.edition.key,"e_",""))
+                        return true
+                    end
+                }))
+                return {
+                    message = 'Kaboom!'
+                }
+            end
+        end
     end
+}
+
+SMODS.Joker{
+    key = 'roboneil',
+    loc_txt = {
+        name = 'Cybernetic Justice',
+        text = {
+            'Bleep Bloop'
+        }
+    },
+    atlas = 'Justices',
+    pos = {x = 0, y = 3}
 }
 
 SMODS.Joker{
