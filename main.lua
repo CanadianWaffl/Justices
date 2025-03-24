@@ -26,6 +26,9 @@ SMODS.Atlas{
 ---------------------------------
 SMODS.Joker{
     key = 'neil',
+    blueprint_compat = false,
+    eternal_compat = false,
+    perishable_compat = false,
     loc_txt = {
         name = 'Average Justice',
         text = {
@@ -37,7 +40,8 @@ SMODS.Joker{
         return {vars = {self.config.mult, self.config.timer}}
     end,
     rarity = 1,
-    config = {mult = 5, timer = 2}, --CHANGE BACK TO 10 TIMER
+    cost = 3,
+    config = {mult = 5, timer = 10},
     atlas = 'Justices',
     pos = {x = 0, y = 0},
     calculate = function(self, card, context)
@@ -96,6 +100,9 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'roboneil',
+    blueprint_compat = false,
+    eternal_compat = false,
+    perishable_compat = false,
     no_collection = true,
     loc_txt = {
         name = 'Cybernetic Justice',
@@ -147,6 +154,9 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'john',
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
     loc_txt = {
         name = 'Chief Justice', --get it it's because that's his title in *real* life
         text = {
@@ -157,6 +167,7 @@ SMODS.Joker{
         }
     },
     rarity = 3,
+    cost = 8,
     atlas = 'Justices',
     pos = {x = 1, y = 0},
     calculate = function(self, card, context)
@@ -181,6 +192,9 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'clarence',
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
     loc_txt = {
         name = 'Silent Justice',
         text = {
@@ -190,6 +204,7 @@ SMODS.Joker{
         }
     },
     rarity = 2,
+    cost = 8,
     loc_vars = function(self, info_queue, card)
         return { vars = {self.config.money_loss, self.config.money_gain, (G.GAME.probabilities.normal or 1), self.config.odds}}
     end,
@@ -209,6 +224,9 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'sam',
+    blueprint_compat = false,
+    eternal_compat = true,
+    perishable_compat = true,
     loc_txt = {
         name = 'Justice Justice',
         text = {
@@ -218,6 +236,7 @@ SMODS.Joker{
         }
     },
     rarity = 1,
+    cost = 4,
     atlas = 'Justices',
     pos = {x = 0, y = 1},
     calculate = function(self, card, context)
@@ -249,6 +268,9 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'sonia',
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
     loc_txt = {
         name = 'Social Justice',
         text = {
@@ -259,6 +281,7 @@ SMODS.Joker{
         }
     },
     rarity = 1,
+    cost = 3,
     atlas = 'Justices',
     pos = {x = 1, y = 1},
     calculate = function(self, card, context)
@@ -289,6 +312,9 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'elena',
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
     loc_txt = {
         name = 'Frozen Justice',
         text = {
@@ -303,6 +329,7 @@ SMODS.Joker{
     end,
     config = {odds = 4},
     rarity = 2,
+    cost = 6,
     atlas = 'Justices',
     pos = {x = 2, y = 1},
     calculate = function(self, card, context)
@@ -322,6 +349,9 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'brett',
+    blueprint_compat = false,
+    eternal_compat = true,
+    perishable_compat = true,
     loc_txt = {
         name = 'Papal Justice',
         text = {
@@ -335,6 +365,7 @@ SMODS.Joker{
 	end,
     config = {chips = 4, chip_gain = 12},
     rarity = 1,
+    cost = 4,
     atlas = 'Justices',
     pos = {x = 0, y = 2},
     calculate = function(self, card, context)
@@ -357,6 +388,9 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'amy',
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
     loc_txt = {
         name = 'Nuclear Justice', --nuclear family, specifically
         text = {
@@ -366,6 +400,7 @@ SMODS.Joker{
     },
     config = {extra = {x_mult = 3}},
     rarity = 3,
+    cost = 8,
     atlas = 'Justices',
     pos = {x = 1, y = 2},
     calculate = function(self, card, context)
@@ -382,6 +417,9 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'ketanji',
+    blueprint_compat = true,
+    eternal_compat = true,
+    perishable_compat = true,
     loc_txt = {
         name = 'Criminal Justice',
         text = {
@@ -395,6 +433,7 @@ SMODS.Joker{
     end,
     config = {perma_mult = 2},
     rarity = 2,
+    cost = 7,
     atlas = 'Justices',
     pos = {x = 2, y = 2},
     calculate = function(self, card, context)
@@ -412,6 +451,9 @@ SMODS.Joker{
 
 SMODS.Joker{
     key = 'marshall',
+    blueprint_compat = false,
+    eternal_compat = true,
+    perishable_compat = true,
     loc_txt = {
         name = 'Ghostly Justice',
         text = {
@@ -426,6 +468,7 @@ SMODS.Joker{
     yes_pool_flag = 'law_sold',
     config = {xmult = 1, xmult_gain = 1},
     rarity = 4,
+    cost = 12,
     atlas = 'Justices',
     pos = {x = 1, y = 3},
     calculate = function(self, card, context)
