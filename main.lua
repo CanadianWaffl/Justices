@@ -37,23 +37,23 @@ SMODS.Joker{
         }
     },
     loc_vars = function(self, info_queue, card)
-        return {vars = {self.config.mult, self.config.timer}}
+        return {vars = {card.ability.extra.mult, card.ability.extra.timer}}
     end,
     rarity = 1,
     cost = 3,
-    config = {mult = 5, timer = 10},
+    config = {extra = {mult = 5, timer = 10}},
     atlas = 'Justices',
     pos = {x = 0, y = 0},
     calculate = function(self, card, context)
         if context.joker_main then
             return {
-                mult_mod = self.config.mult,
-                message = localize { type = 'variable', key = 'a_mult', vars = { self.config.mult}}
+                mult_mod = card.ability.extra.mult,
+                message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult}}
             }
         end
         if context.final_scoring_step then
-            if self.config.timer > 1 then
-                self.config.timer = self.config.timer - 1
+            if card.ability.extra.timer > 1 then
+                card.ability.extra.timer = card.ability.extra.timer - 1
                 return {
                     message = 'Tick Tock...',
                 }
@@ -114,9 +114,9 @@ SMODS.Joker{
         }
     },
     loc_vars = function(self, info_queue, card)
-        return {vars = {self.config.mult_gain, self.config.mult}}
+        return {vars = {card.ability.extra.mult_gain, card.ability.extra.mult}}
     end,
-    config = {mult = 5, mult_gain = 2},
+    config = {extra = {mult = 5, mult_gain = 2}},
     yes_pool_flag = "never",
     rarity = 2,
     atlas = 'Justices',
@@ -127,7 +127,7 @@ SMODS.Joker{
             for k, v in ipairs(G.jokers.cards) do
                 if v == card then break end
                 count = count + 1
-                self.config.mult = self.config.mult + self.config.mult_gain
+                card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.mult_gain
                 G.E_MANAGER:add_event(Event({
                     trigger = 'immediate',
                     func = function()
@@ -145,8 +145,8 @@ SMODS.Joker{
         end
         if context.joker_main then
             return {
-                mult_mod = self.config.mult,
-                message = localize { type = 'variable', key = 'a_mult', vars = { self.config.mult}}
+                mult_mod = card.ability.extra.mult,
+                message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult}}
             }
         end
     end
@@ -206,17 +206,17 @@ SMODS.Joker{
     rarity = 2,
     cost = 8,
     loc_vars = function(self, info_queue, card)
-        return { vars = {self.config.money_loss, self.config.money_gain, (G.GAME.probabilities.normal or 1), self.config.odds}}
+        return { vars = {card.ability.extra.money_loss, card.ability.extra.money_gain, (G.GAME.probabilities.normal or 1), card.ability.extra.odds}}
     end,
-    config = {money_loss = 1, money_gain = 20, odds = 9},
+    config = {extra = {money_loss = 1, money_gain = 20, odds = 9}},
     atlas = 'Justices',
     pos = {x = 2, y = 0},
     calc_dollar_bonus = function(self, card)
 		local bonus
-        if pseudorandom('clarence') < G.GAME.probabilities.normal / self.config.odds then
-            bonus = self.config.money_gain
+        if pseudorandom('clarence') < G.GAME.probabilities.normal / card.ability.extra.odds then
+            bonus = card.ability.extra.money_gain
         else
-            bonus = -self.config.money_loss
+            bonus = -card.ability.extra.money_loss
         end
         if bonus ~= 0 then return bonus end
 	end
@@ -325,16 +325,16 @@ SMODS.Joker{
         }
     },
     loc_vars = function(self, info_queue, card)
-        return {vars = {(G.GAME.probabilities.normal or 1), self.config.odds}}
+        return {vars = {(G.GAME.probabilities.normal or 1), card.ability.extra.odds}}
     end,
-    config = {odds = 4},
+    config = {extra = {odds = 4}},
     rarity = 2,
     cost = 6,
     atlas = 'Justices',
     pos = {x = 2, y = 1},
     calculate = function(self, card, context)
         if context.first_hand_drawn then
-            if pseudorandom('elena') < G.GAME.probabilities.normal / self.config.odds then
+            if pseudorandom('elena') < G.GAME.probabilities.normal / card.ability.extra.odds then
                 add_joker('j_ice_cream', 'negative')
                 return {
                     message = 'Yum!'
@@ -361,9 +361,9 @@ SMODS.Joker{
         }
     },
     loc_vars = function(self, info_queue, card)
-		return { vars = { self.config.chips, self.config.chip_gain } }
+		return { vars = { card.ability.extra.chips, card.ability.extra.chip_gain } }
 	end,
-    config = {chips = 4, chip_gain = 12},
+    config = {extra = {chips = 4, chip_gain = 12}},
     rarity = 1,
     cost = 4,
     atlas = 'Justices',
@@ -371,7 +371,7 @@ SMODS.Joker{
     calculate = function(self, card, context)
         if context.remove_playing_cards then
             for k, v in ipairs(context.removed) do
-                self.config.chips = self.config.chips + self.config.chip_gain
+                card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.chip_gain
             end
             return {
                 message = 'Upgrade!',
@@ -380,7 +380,7 @@ SMODS.Joker{
         end
         if context.joker_main then 
             return {
-                chips = self.config.chips
+                chips = card.ability.extra.chips
             }
         end
     end
@@ -429,9 +429,9 @@ SMODS.Joker{
         }
     },
     loc_vars = function(self, info_queue, card)
-        return {vars = {self.config.perma_mult}}
+        return {vars = {card.ability.extra.perma_mult}}
     end,
-    config = {perma_mult = 2},
+    config = {extra = {perma_mult = 2}},
     rarity = 2,
     cost = 7,
     atlas = 'Justices',
@@ -440,7 +440,7 @@ SMODS.Joker{
         if context.pre_discard then
             for k, v in ipairs(G.hand.highlighted) do
                 v.ability.perma_mult = v.ability.perma_mult or 0
-                v.ability.perma_mult = v.ability.perma_mult + self.config.perma_mult
+                v.ability.perma_mult = v.ability.perma_mult + card.ability.extra.perma_mult
                 card_eval_status_text(v, 'extra', nil, nil, nil, {message = localize('k_upgrade_ex'), colour = G.C.MULT})
                 --card:juice_up(0.3, 0.5) --only happens once for some reason??
             end
@@ -463,10 +463,10 @@ SMODS.Joker{
         }
     },
     loc_vars = function(self, info_queue, card)
-        return {vars = {self.config.xmult}}
+        return {vars = {card.ability.extra.xmult}}
     end,
     yes_pool_flag = 'law_sold',
-    config = {xmult = 1, xmult_gain = 1},
+    config = {extra = {xmult = 1, xmult_gain = 1}},
     rarity = 4,
     cost = 12,
     atlas = 'Justices',
@@ -474,7 +474,7 @@ SMODS.Joker{
     calculate = function(self, card, context)
         if context.selling_card then
             if context.card.ability.name == 'c_jst_law' then
-                self.config.xmult = self.config.xmult + self.config.xmult_gain
+                card.ability.extra.xmult = card.ability.extra.xmult + card.ability.extra.xmult_gain
                 return {
                     message = localize('k_upgrade_ex'),
                     colour = G.C.MULT
@@ -483,8 +483,8 @@ SMODS.Joker{
         end
         if context.joker_main then
             return {
-                Xmult_mod = self.config.xmult,
-                message = localize {type = 'variable', key = 'a_xmult', vars = {self.config.xmult}}
+                Xmult_mod = card.ability.extra.xmult,
+                message = localize {type = 'variable', key = 'a_xmult', vars = {card.ability.extra.xmult}}
             }
         end
     end
@@ -506,26 +506,26 @@ SMODS.Seal {
             'when destroyed'
         }
     },
-    loc_vars = function(self, info_queue, card)
-		return {}
-	end,
-    config = {},
     atlas = 'Seals',
     pos = {x = 0, y = 0},
     calculate = function(self, card, context)
         if context.remove_playing_cards then
-            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
-                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
-                G.E_MANAGER:add_event(Event({
-                    trigger = 'before',
-                    delay = 0.0,
-                    func = (function()
-                            local card = create_card('Spectral',G.consumeables, nil, nil, nil, nil, nil, 'black-seal')
-                            card:add_to_deck()
-                            G.consumeables:emplace(card)
-                            G.GAME.consumeable_buffer = 0
-                        return true
-                    end)}))
+            for k, v in ipairs(context.removed) do
+                if v == card then
+                    if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                        G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                        G.E_MANAGER:add_event(Event({
+                            trigger = 'before',
+                            delay = 0.0,
+                            func = (function()
+                                    local card = create_card('Spectral',G.consumeables, nil, nil, nil, nil, nil, 'black-seal')
+                                    card:add_to_deck()
+                                    G.consumeables:emplace(card)
+                                    G.GAME.consumeable_buffer = 0
+                                return true
+                            end)}))
+                    end
+                end
             end
         end
     end
@@ -546,9 +546,9 @@ SMODS.Consumable {
         }
 	},
 	loc_vars = function(self, info_queue, card)
-		return {vars = {(G.GAME.probabilities.normal or 1), self.config.odds}}
+		return {vars = {(G.GAME.probabilities.normal or 1), card.ability.extra.odds}}
 	end,
-	config = {odds = 2}, --CHANGE ODDS BACK
+	config = {extra = {odds = 2}},
 	atlas = 'Consumes',
 	pos = {x = 0, y = 0},
     remove_from_deck = function(self, card, from_debuff)
@@ -578,7 +578,7 @@ SMODS.Consumable {
     end,
 	use = function(self, card, area, copier)
         local eligible_jokers = {}
-        if pseudorandom('law') < (G.GAME.probabilities.normal / self.config.odds) then
+        if pseudorandom('law') < (G.GAME.probabilities.normal / card.ability.extra.odds) then
             for k, v in ipairs(G.jokers.cards) do
                 if not string.find(v.ability.name, 'jst') then
                     if v.edition then
